@@ -1,0 +1,24 @@
+name: Check TXT Subscriptions Expiry
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Проверять каждый день в 8 утра
+  workflow_dispatch:      # Ручной запуск
+
+jobs:
+  check-subscriptions:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+      
+    - name: Check and move expired
+      run: |
+        python check_txt_expiry.py
+        
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --staged --quiet || git commit -m "Auto: Archive expired subscriptions"
+        git push
